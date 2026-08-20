@@ -16,7 +16,9 @@
         .brand span { color: var(--coral); }
         nav div:last-child { display: flex; gap: 8px; }
         nav a { color: var(--ink); text-decoration: none; padding: 9px 13px; border-radius: 5px; }
-        nav a:hover, nav a.active { background: var(--ink); color: var(--paper); }
+        nav form { display: inline; }
+        nav button { border: 0; color: var(--ink); background: transparent; font: inherit; padding: 9px 13px; border-radius: 5px; cursor: pointer; }
+        nav a:hover, nav button:hover, nav a.active { background: var(--ink); color: var(--paper); }
         main { max-width: 1040px; margin: auto; padding: 76px 24px 100px; }
         .kicker { color: var(--coral); font: 500 12px 'DM Mono', monospace; letter-spacing: .12em; text-transform: uppercase; }
         h1 { max-width: 720px; margin: 16px 0; font-size: clamp(3rem, 8vw, 7rem); line-height: .9; letter-spacing: -.07em; }
@@ -24,14 +26,14 @@
         .student-strip { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; margin-top: 62px; padding: 28px; background: var(--mint); border: 1px solid #8bc8b0; border-radius: 8px; }
         .student-strip strong { display: block; font-size: 1.5rem; }
         .student-strip small { display: block; margin-top: 7px; color: #45665a; font: 12px 'DM Mono', monospace; }
-        .cta { background: var(--coral); color: #fff; text-decoration: none; padding: 14px 18px; border-radius: 5px; font-weight: 600; }
+        .cta { border: 0; background: var(--coral); color: #fff; font: inherit; padding: 14px 18px; border-radius: 5px; font-weight: 600; cursor: pointer; }
         @media (max-width: 600px) { nav { align-items: flex-start; gap: 18px; } nav div:last-child { flex-direction: column; gap: 2px; } main { padding-top: 52px; } .student-strip { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <nav>
         <div class="brand"><span>//</span> student desk</div>
-        <div><a class="active" href="<?= site_url('student'); ?>">Home</a><a href="<?= site_url('student/profile'); ?>">Profile</a></div>
+        <div><a class="active" href="<?= site_url('student'); ?>">Home</a><form action="<?= site_url('student/profile'); ?>" method="post"><button type="submit">Profile</button></form></div>
     </nav>
     <main>
         <div class="kicker">LavaLust laboratory / 01</div>
@@ -39,7 +41,7 @@
         <p class="intro">A small student information page demonstrating routing, controllers, views, data passing, and middleware in one focused flow.</p>
         <section class="student-strip">
             <div><strong><?= htmlspecialchars($student['name'], ENT_QUOTES, 'UTF-8'); ?></strong><small><?= htmlspecialchars($student['course'], ENT_QUOTES, 'UTF-8'); ?> / <?= htmlspecialchars($student['year'], ENT_QUOTES, 'UTF-8'); ?></small></div>
-            <a class="cta" href="<?= site_url('student/profile'); ?>">Open profile &rarr;</a>
+            <form action="<?= site_url('student/profile'); ?>" method="post"><button class="cta" type="submit">Open profile &rarr;</button></form>
         </section>
     </main>
 </body>

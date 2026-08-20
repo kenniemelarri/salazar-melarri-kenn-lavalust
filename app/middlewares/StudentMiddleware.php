@@ -9,11 +9,7 @@ class StudentMiddleware
             session_start();
         }
 
-        $referrer = $_SERVER['HTTP_REFERER'] ?? '';
-        $referrer_path = parse_url($referrer, PHP_URL_PATH) ?: '';
-        $came_from_student_home = in_array(rtrim($referrer_path, '/'), ['', '/index.php', '/index.php/student'], true);
-
-        if (($_SESSION['student_access'] ?? false) !== true || !$came_from_student_home) {
+        if (($_SESSION['student_access'] ?? false) !== true || ($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             redirect('student');
             exit;
         }
