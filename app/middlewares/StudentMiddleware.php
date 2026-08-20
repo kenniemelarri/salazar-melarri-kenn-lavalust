@@ -10,7 +10,6 @@ class StudentMiddleware
         }
 
         if (($_SESSION['student_access'] ?? false) !== true || ($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-            $_SESSION['student_warning'] = 'Profile access is available only through the Profile button on the student home page.';
             redirect('student');
             exit;
         }
