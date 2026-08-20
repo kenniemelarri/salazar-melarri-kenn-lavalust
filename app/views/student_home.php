@@ -27,6 +27,7 @@
         .student-strip strong { display: block; font-size: 1.5rem; }
         .student-strip small { display: block; margin-top: 7px; color: #45665a; font: 12px 'DM Mono', monospace; }
         .cta { border: 0; background: var(--coral); color: #fff; font: inherit; padding: 14px 18px; border-radius: 5px; font-weight: 600; cursor: pointer; }
+        .warning { margin: 28px 0 -28px; padding: 14px 16px; border-left: 4px solid var(--coral); background: #fff1ec; color: #8c3d2d; }
         @media (max-width: 600px) { nav { align-items: flex-start; gap: 18px; } nav div:last-child { flex-direction: column; gap: 2px; } main { padding-top: 52px; } .student-strip { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -39,6 +40,10 @@
         <div class="kicker">LavaLust laboratory / 01</div>
         <h1>Make your work<br>legible.</h1>
         <p class="intro">A small student information page demonstrating routing, controllers, views, data passing, and middleware in one focused flow.</p>
+        <?php if (!empty($_SESSION['student_warning'])): ?>
+            <div class="warning" role="alert"><?= htmlspecialchars($_SESSION['student_warning'], ENT_QUOTES, 'UTF-8'); ?></div>
+            <?php unset($_SESSION['student_warning']); ?>
+        <?php endif; ?>
         <section class="student-strip">
             <div><strong><?= htmlspecialchars($student['name'], ENT_QUOTES, 'UTF-8'); ?></strong><small><?= htmlspecialchars($student['course'], ENT_QUOTES, 'UTF-8'); ?> / <?= htmlspecialchars($student['year'], ENT_QUOTES, 'UTF-8'); ?></small></div>
             <form action="<?= site_url('student/profile'); ?>" method="post"><button class="cta" type="submit">Open profile &rarr;</button></form>
