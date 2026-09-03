@@ -9,7 +9,7 @@ class StudentMiddleware
             session_start();
         }
 
-        if (($_SESSION['student_access'] ?? false) !== true || ($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+        if (($_SESSION['student_access'] ?? false) !== true) {
             redirect('student');
             exit;
         }
