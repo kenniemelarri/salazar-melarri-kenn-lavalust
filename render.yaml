@@ -5,5 +5,23 @@ services:
     plan: free
     healthCheckPath: /index.php
     envVars:
+      - key: APP_NAME
+        value: Lavalust
       - key: APP_ENV
         value: production
+      - key: APP_KEY
+        value: replace-with-your-app-key
+      - key: DB_HOST
+        value: your-aiven-host
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_USERNAME
+        value: your-aiven-username
+      - key: DB_PASSWORD
+        value: your-aiven-password
+      - key: DB_NAME
+        value: your-aiven-database
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_CHARSET
+        value: utf8mb4
