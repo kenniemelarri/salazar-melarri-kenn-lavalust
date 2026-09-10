@@ -242,6 +242,18 @@ class Database {
             ? $database_config['path']
             : null;
 
+        $ssl_mode = isset($database_config['ssl_mode'])
+            ? strtolower(trim($database_config['ssl_mode']))
+            : 'disabled';
+
+        $ssl_ca = isset($database_config['ssl_ca']) && !empty($database_config['ssl_ca'])
+            ? $database_config['ssl_ca']
+            : null;
+
+        $ssl_cipher = isset($database_config['ssl_cipher']) && !empty($database_config['ssl_cipher'])
+            ? $database_config['ssl_cipher']
+            : 'AES256-SHA';
+
         switch ($driver) {
             case 'mysql':
                 $dsn = "mysql:host=$host;dbname=$dbname_value;charset=$charset;port=$port";
@@ -267,6 +279,14 @@ class Database {
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,
         );
+
+        if ($driver === 'mysql' && in_array($ssl_mode, array('required', 'preferred'), true)) {
+            $options[PDO::MYSQL_ATTR_SSL_CIPHER] = $ssl_cipher;
+            if ($ssl_ca !== null) {
+                $options[PDO::MYSQL_ATTR_SSL_CA] = $ssl_ca;
+            }
+            $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = $ssl_ca !== null;
+        }
 
         try {
             $this->db = new PDO($dsn, $username, $password, $options);

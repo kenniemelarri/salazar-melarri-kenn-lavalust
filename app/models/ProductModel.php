@@ -2,16 +2,15 @@
 
 defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
-class UsersModel extends Model
+class ProductModel extends Model
 {
-    protected $table = 'users';
+    protected $table = 'products';
 
     protected $fillable = [
-        'username',
-        'email',
-        'password',
-        'role',
-        'is_active',
+        'product_name',
+        'description',
+        'price',
+        'quantity',
     ];
 
     protected $timestamps = true;

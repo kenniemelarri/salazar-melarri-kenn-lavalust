@@ -352,5 +352,6 @@ $config['csrf_regenerate']         = FALSE;
 // Middleware is needed while the router is matching a request, before a
 // controller can initialize the normal application autoload configuration.
 require_once APP_DIR . 'middlewares/StudentMiddleware.php';
+require_once APP_DIR . 'middlewares/AuthMiddleware.php';
 require_once APP_DIR . 'config/middleware.php';
 ?>
