@@ -7,8 +7,12 @@ class ProductController extends Controller
     public function index()
     {
         $this->load_product_model();
+
         $products = $this->ProductModel->order_by('id', 'DESC');
-        $this->call->view('products', ['products' => $products]);
+
+        $this->call->view('products', [
+            'products' => $products
+        ]);
     }
 
     public function create()
@@ -24,26 +28,40 @@ class ProductController extends Controller
         }
 
         $data = $this->validated_product($_POST);
+
         if ($data === false) {
-            $this->form('create', $_POST, 'Product name, price, and a non-negative quantity are required.');
+            $this->form(
+                'create',
+                $_POST,
+                'Product name, price, and a non-negative quantity are required.'
+            );
             return;
         }
 
         $this->load_product_model();
+
         $this->ProductModel->insert($data);
+
         redirect('products');
     }
 
     public function edit($id)
     {
         $this->load_product_model();
+
         $product = $this->ProductModel->find((int) $id);
+
         if (!$product) {
             show_404();
             return;
         }
 
-        $this->form('edit', $product, null, $product['id']);
+        $this->form(
+            'edit',
+            $product,
+            null,
+            $product['id']
+        );
     }
 
     public function update($id)
@@ -54,26 +72,38 @@ class ProductController extends Controller
         }
 
         $data = $this->validated_product($_POST);
+
         if ($data === false) {
-            $this->form('edit', array_merge($_POST, ['id' => $id]), 'Product name, price, and a non-negative quantity are required.', $id);
+            $this->form(
+                'edit',
+                array_merge($_POST, ['id' => $id]),
+                'Product name, price, and a non-negative quantity are required.',
+                $id
+            );
             return;
         }
 
         $this->load_product_model();
+
         if (!$this->ProductModel->find((int) $id)) {
             show_404();
             return;
         }
+
         $this->ProductModel->update((int) $id, $data);
+
         redirect('products');
     }
 
     public function delete($id)
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
             $this->load_product_model();
+
             $this->ProductModel->delete((int) $id);
         }
+
         redirect('products');
     }
 
@@ -90,7 +120,13 @@ class ProductController extends Controller
         $price = $input['price'] ?? '';
         $quantity = $input['quantity'] ?? '';
 
-        if ($name === '' || !is_numeric($price) || (float) $price < 0 || filter_var($quantity, FILTER_VALIDATE_INT) === false || (int) $quantity < 0) {
+        if (
+            $name === '' ||
+            !is_numeric($price) ||
+            (float) $price < 0 ||
+            filter_var($quantity, FILTER_VALIDATE_INT) === false ||
+            (int) $quantity < 0
+        ) {
             return false;
         }
 
