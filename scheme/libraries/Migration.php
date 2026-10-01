@@ -121,10 +121,11 @@ class Migration {
         $latest_version = $this->get_latest_migration_version();
         $new_version    = str_pad($latest_version + 1, 3, '0', STR_PAD_LEFT);
 
-        $filename = "{$new_version}_{$migration_name}.php";
-        $filepath = $this->migrations_folder . $filename;
+        $normalized_name = $this->normalize_migration_name($migration_name);
+        $filename        = "{$new_version}_{$normalized_name}.php";
+        $filepath        = $this->migrations_folder . $filename;
 
-        $class_name = ucfirst(str_replace(['-', ' '], '_', $migration_name));
+        $class_name = $this->normalize_migration_class_name($normalized_name);
 
         $template = <<<EOT
 <?php
@@ -392,7 +393,37 @@ EOT;
     {
         $base_name = basename($file, '.php');
         $parts = explode('_', $base_name, 2);
-        return $parts[1] ?? $base_name;
+        $name = $parts[1] ?? $base_name;
+
+        return $this->normalize_migration_class_name($name);
+    }
+
+    /**
+     * Normalize a migration name into a valid file name segment.
+     *
+     * @param  string $migration_name
+     * @return string
+     */
+    protected function normalize_migration_name($migration_name)
+    {
+        $name = trim((string) $migration_name);
+        $name = preg_replace('/[^A-Za-z0-9_\-\s]+/', '_', $name);
+        $name = preg_replace('/[\-_\s]+/', '_', $name);
+        $name = trim($name, '_');
+
+        return $name !== '' ? $name : 'migration';
+    }
+
+    /**
+     * Normalize a migration file segment into a valid class name.
+     *
+     * @param  string $migration_name
+     * @return string
+     */
+    protected function normalize_migration_class_name($migration_name)
+    {
+        $name = $this->normalize_migration_name($migration_name);
+        return ucfirst($name);
     }
 
     // ====================== CLI OUTPUT HELPERS ======================

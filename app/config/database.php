@@ -58,18 +58,17 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 */
 
 $database['main'] = array(
-    'driver' => getenv('DB_CONNECTION') ?: getenv('DB_DRIVER') ?: 'mysql',
-    'hostname' => getenv('DB_HOST') ?: 'localhost',
-    'port' => getenv('DB_PORT') ?: '3306',
-    'username' => getenv('DB_USERNAME') ?: getenv('DB_USER') ?: 'root',
+    'driver' => getenv('DB_CONNECTION') ?: 'mysql',
+    'hostname' => getenv('DB_HOST') ?: 'mysql-9d5ce8d-melarrisalazar926-6b1e.b.aivencloud.com',
+    'port' => getenv('DB_PORT') ?: '13226',
+    'username' => getenv('DB_USERNAME') ?: 'avnadmin',
     'password' => getenv('DB_PASSWORD') ?: '',
-    'database' => getenv('DB_NAME') ?: getenv('DB_DATABASE') ?: 'lavalust',
+    'database' => getenv('DB_NAME') ?: 'products',
     'charset' => getenv('DB_CHARSET') ?: 'utf8mb4',
     'dbprefix' => getenv('DB_PREFIX') ?: '',
-    'ssl_mode' => getenv('DB_SSL_MODE') ?: 'disabled',
+    'ssl_mode' => getenv('DB_SSL_MODE') ?: 'required',
     'ssl_ca' => getenv('DB_SSL_CA') ?: '',
     'ssl_cipher' => getenv('DB_SSL_CIPHER') ?: 'AES256-SHA',
-    // Optional for SQLite
     'path' => getenv('DB_PATH') ?: ''
 );
 

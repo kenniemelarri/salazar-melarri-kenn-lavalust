@@ -37,6 +37,16 @@ register_command('make:library', 'handle_make_library', 'Creates a library', [
     'name' => 'Library name (e.g., PDF)'
 ]);
 
+register_command('make:migration', 'handle_make_migration', 'Creates a migration file', [
+    'name' => 'Migration name (e.g., create_users_table)'
+]);
+
+register_command('migrate', 'handle_migrate', 'Run all pending migrations', []);
+register_command('rollback', 'handle_rollback', 'Rollback the latest migration', []);
+register_command('refresh', 'handle_refresh', 'Rollback all migrations and run them again', []);
+register_command('migrate:status', 'handle_migration_status', 'Show migration status', []);
+register_command('migration:status', 'handle_migration_status', 'Show migration status', []);
+
 register_command('make:view', 'handle_make_view', 'Creates a view file', [
     'name' => 'View name (e.g., homepage or admin/dashboard)'
 ]);
@@ -209,6 +219,124 @@ function handle_make_library($name) {
 }
 
 /**
+ * Handle Make Migration Command
+ *
+ * @param string $name
+ * @return void
+ */
+function handle_make_migration($name, array $flags = []) {
+    if (!$name) {
+        echo danger("Migration name is required. Example: php lava make:migration create_users_table");
+        exit(1);
+    }
+
+    $raw_name = trim($name);
+    $normalized = preg_replace('/[^A-Za-z0-9_\-\s]+/', '_', $raw_name);
+    $normalized = preg_replace('/[\-_\s]+/', '_', $normalized);
+    $normalized = trim($normalized, '_');
+
+    if ($normalized === '') {
+        echo danger("Migration name is invalid.");
+        exit(1);
+    }
+
+    $version = get_next_migration_version();
+    $class_name = ucfirst($normalized);
+    $file_name = sprintf('%03d_%s.php', $version, $normalized);
+    $folder = APP_DIR . 'migrations';
+    $file_path = $folder . DIRECTORY_SEPARATOR . $file_name;
+
+    if (!is_dir($folder)) mkdir($folder, 0777, true);
+
+    $content = <<<PHP
+<?php
+
+class {$class_name} {
+
+    private \$_lava;
+
+    public function __construct()
+    {
+        \$this->_lava = lava_instance();
+        \$this->_lava->call->dbforge();
+    }
+
+    public function up()
+    {
+        // Write your "UP" migration here
+        // Example:
+        // \$this->_lava->dbforge->add_field([
+        //     'id' => [
+        //         'type' => 'INT',
+        //         'constraint' => 11,
+        //         'unsigned' => TRUE,
+        //         'auto_increment' => TRUE,
+        //         'null' => FALSE,
+        //     ],
+        // ]);
+        // \$this->_lava->dbforge->add_key('id', primary: TRUE);
+        // \$this->_lava->dbforge->create_table('your_table_name');
+    }
+
+    public function down()
+    {
+        // Write your "DOWN" migration here
+        // Example:
+        // \$this->_lava->dbforge->drop_table('your_table_name');
+    }
+}
+PHP;
+
+    if (file_put_contents($file_path, $content) === false) {
+        echo danger("Failed to create migration file at: {$file_path}");
+        exit(1);
+    }
+
+    echo success("Migration created successfully!") . PHP_EOL;
+    echo "File: {$file_name}" . PHP_EOL;
+}
+
+/**
+ * Handle Migrate Command
+ *
+ * @return void
+ */
+function handle_migrate() {
+    $migration = bootstrap_migration_library();
+    $migration->migrate();
+}
+
+/**
+ * Handle Rollback Command
+ *
+ * @return void
+ */
+function handle_rollback() {
+    $migration = bootstrap_migration_library();
+    $migration->rollback();
+}
+
+/**
+ * Handle Refresh Command
+ *
+ * @return void
+ */
+function handle_refresh() {
+    $migration = bootstrap_migration_library();
+    $migration->refresh();
+}
+
+/**
+ * Handle Migration Status Command
+ *
+ * @return void
+ */
+function handle_migration_status() {
+    $migration = bootstrap_migration_library();
+    $migration->status();
+}
+
+/**
  * Handle Make Middleware Command
  *
  * @param string $name
@@ -277,6 +405,94 @@ function handle_cache_clear() {
     }
 
     echo success("Cache cleared! {$deleted} file(s) removed from runtime/cache.") . PHP_EOL;
+}
+
+function bootstrap_migration_library() {
+    if (!defined('ROOT_DIR')) {
+        define('ROOT_DIR', dirname(__DIR__, 1) . DIRECTORY_SEPARATOR);
+    }
+    if (!defined('SYSTEM_DIR')) {
+        define('SYSTEM_DIR', ROOT_DIR . 'scheme' . DIRECTORY_SEPARATOR);
+    }
+    if (!defined('APP_DIR')) {
+        define('APP_DIR', ROOT_DIR . 'app' . DIRECTORY_SEPARATOR);
+    }
+    if (!defined('PUBLIC_DIR')) {
+        define('PUBLIC_DIR', ROOT_DIR . 'public' . DIRECTORY_SEPARATOR);
+    }
+    if (!defined('PREVENT_DIRECT_ACCESS')) {
+        define('PREVENT_DIRECT_ACCESS', TRUE);
+    }
+
+    if (!class_exists('Registry')) {
+        require_once SYSTEM_DIR . 'kernel/Registry.php';
+    }
+
+    if (!function_exists('load_class')) {
+        require_once SYSTEM_DIR . 'kernel/Routine.php';
+    }
+
+    if (!class_exists('Controller')) {
+        require_once SYSTEM_DIR . 'kernel/Controller.php';
+    }
+
+    if (!function_exists('lava_instance')) {
+        function lava_instance() {
+            return Controller::instance();
+        }
+    }
+
+    if (!Controller::instance()) {
+        new Controller();
+    }
+
+    $controller = Controller::instance();
+    if (!isset($controller->properties['config'])) {
+        $controller->config = load_class('config', 'kernel');
+    }
+    if (!isset($controller->properties['logger'])) {
+        $controller->logger = load_class('logger', 'kernel');
+    }
+    if (!isset($controller->properties['security'])) {
+        $controller->security = load_class('security', 'kernel');
+    }
+    if (!isset($controller->properties['request'])) {
+        $controller->request = load_class('request', 'kernel');
+    }
+    if (!isset($controller->properties['response'])) {
+        $controller->response = load_class('response', 'kernel');
+    }
+    if (!isset($controller->properties['lang'])) {
+        $controller->lang = load_class('lang', 'kernel');
+    }
+
+    if (!class_exists('Migration')) {
+        require_once SYSTEM_DIR . 'libraries/Migration.php';
+    }
+
+    return new Migration();
+}
+
+function get_next_migration_version() {
+    $folder = APP_DIR . 'migrations';
+    if (!is_dir($folder)) {
+        return 1;
+    }
+
+    $files = glob($folder . DIRECTORY_SEPARATOR . '*.php');
+    if (empty($files)) {
+        return 1;
+    }
+
+    $versions = [];
+    foreach ($files as $file) {
+        $name = basename($file, '.php');
+        if (preg_match('/^(\d{3})_/', $name, $matches)) {
+            $versions[] = (int) $matches[1];
+        }
+    }
+
+    return empty($versions) ? 1 : max($versions) + 1;
 }
 
 /**

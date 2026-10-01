@@ -65,3 +65,16 @@ $router->get('/student', 'UsersController::index');
 $router->get('/student/profile', 'UsersController::index');
 $router->post('/student/profile', 'UsersController::index');
 $router->get('/users', 'UsersController::index');
+
+// API Login Route
+$router->options('/api/login', 'ApiAuthController::login');
+$router->post('/api/login', 'ApiAuthController::login');
+
+// Product API Routes
+$router->options('/api/products', 'ProductApiController::index');
+$router->options('/api/products/{id}', 'ProductApiController::update');
+
+$router->get('/api/products', 'ProductApiController::index');
+$router->post('/api/products', 'ProductApiController::store');
+$router->put('/api/products/{id}', 'ProductApiController::update');
+$router->delete('/api/products/{id}', 'ProductApiController::delete');
